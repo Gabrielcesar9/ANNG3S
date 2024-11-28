@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NumJS Example</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numjs/0.14.2/numjs.js"></script>
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <div class="container">
+        <form onsubmit="return false">
+        <table class="mol">
+            <thead>
+                <tr>
+                    <td>HF</td><td>QCISD(T)</td><td>MP2dz</td><td>MP2tz</td><td>ZPE</td><td>Corr.&#916;H</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    
+                        <td><input id="HF" type="text" value="-686.9960109" required></td>
+                        <td><input id="QCISDT" type="text" value="-687.9299736" required></td>
+                        <td><input id="MP2dz" type="text" value="-687.9025701" required></td>
+                        <td><input id="MP2tz" type="text" value="-688.2951238"  required></td>
+                        <td><input id="ZPE" type="text" value="0.012672"  required></td>
+                        <td><input id="Corr" type="text" value="0.018575"  required></td>
+                    
+                </tr>
+            </tbody>
+        </table>
+        <table class="atoms">
+            <thead>
+                <tr>
+                    <td style="color: white;">H</td><td style="color: rgb(240, 206, 168);">Li</td><td style="color: rgb(218, 240, 168);">Be</td><td style="color: rgb(212, 150, 248);">B</td>
+                    <td style="color: rgb(179, 178, 178);">C</td><td style="color: rgb(168, 235, 240);">N</td><td style="color: rgb(214, 117, 122);">O</td><td style="color: rgb(215, 50, 230);">F</td><td style="color: rgb(243, 221, 98);">Na</td><td style="color: rgb(8, 101, 207);">Mg</td>
+                    <td style="color: rgb(26, 148, 63);">Al</td><td style="color: rgb(200, 201, 197);">Si</td><td style="color: rgb(226, 44, 44);">P</td><td style="color: rgb(211, 233, 10);">S</td><td style="color: rgb(41, 228, 57);">Cl</td><td style="color: rgb(117, 110, 67);">Br</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input class="atbox" id="H" type="number" value="0" placeholder="0"></td>
+                    <td><input class="atbox" id="Li" type="number" value="0" placeholder="0"></td>
+                    <td><input class="atbox" id="Be" type="number" value="0" placeholder="0"></td>
+                    <td><input class="atbox" id="B" type="number" value="0" placeholder="0"></td>
+                    <td><input class="atbox" id="C" type="number" value="0" placeholder="0"></td>
+                    <td><input class="atbox" id="N" type="number" value="0" placeholder="0"></td>
+                    <td><input class="atbox" id="O" type="number" value="0" placeholder="0"></td>
+                    <td><input class="atbox" id="F" type="number" value="4" placeholder="0"></td>
+                    <td><input class="atbox" id="Na" type="number" value="0" placeholder="0"></td>
+                    <td><input class="atbox" id="Mg" type="number" value="0" placeholder="0"></td>
+                    <td><input class="atbox" id="Al" type="number" value="0" placeholder="0"></td>
+                    <td><input class="atbox" id="Si" type="number" value="1" placeholder="0"></td>
+                    <td><input class="atbox" id="P" type="number" value="0" placeholder="0"></td>
+                    <td><input class="atbox" id="S" type="number" value="0" placeholder="0"></td>
+                    <td><input class="atbox" id="Cl" type="number" value="0" placeholder="0"></td>
+                    <td><input class="atbox" id="Br" type="number" value="0" placeholder="0"></td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <div id="eq">
+            Eng = HF + a|b(QCISD(T) - HF) + c|d(MP2(aug-cc-pvTz) - MP2(aug-cc-pvDz))
+        </div>
+        <br><br>
+        <div id="box">
+            <div id="Par">
+                Parameters:
+                <div> 
+                <label for="a">a = </label>
+                <span id="a"></span>
+                </div>
+                <div>
+                    <label for="b">b = </label>
+                    <span id="b"></span>
+                </div>
+                <div>
+        
+                    <label for="c">c = </label>
+                    <span id="c"></span>
+                </div>
+                <div>
+                    <label for="d">d = </label>
+                    <span id="d"></span>
+                </div>
+            </div>
+            <br>
+            <div>
+                <label for="energy">Energy (Hartree):</label>
+                <span id="energy"></span>
+            </div>
+            <br>
+            <div>
+                <label for="atomization">Atomization energy (kcal/mol):</label>
+                <span id="atomization"></span>
+            </div>
+            <br>
+            <div>
+                <label for="enthalpy0">&#916;H<sub>f</sub>&deg;(0K):</label>
+                <span id="enthalpy0"></span>
+            </div>
+            <br>
+            <div>
+                <label for="enthalpy298">&#916;H<sub>f</sub>&deg;(298K):</label>
+                <span id="enthalpy298"></span>
+            </div>
+        </div>
+        <br> 
+        <button type="submit" class="button-59" id="go" onclick=compute()>Compute</button>
+    </div>
+</form>
+</body>
+
+<script>
+    function compute(){
+
+        function relu(array){
+        const x = array.selection.data
+        let v = []
+        for (let i = 0; i< x.length; i++){
+            if(x[i]<0){
+                v.push(0)
+            }else{
+                v.push(x[i])
+            }
+        }
+    return nj.array(v)
+        }   
+    function softmax(array) {
+    const arr = array.selection.data
+    const expArr = arr.map(x => Math.exp(x));
+    const sumExp = expArr.reduce((acc, val) => acc + val, 0);
+    return nj.array(expArr.map(x => x / sumExp));
+    }   
+    
+    const utr = {
+            atoms:[document.getElementById("H").value,
+            document.getElementById("Li").value,
+            document.getElementById("Be").value,
+            document.getElementById("B").value,
+            document.getElementById("C").value,
+            document.getElementById("N").value,
+            document.getElementById("O").value,
+            document.getElementById("F").value,
+            document.getElementById("Na").value,
+            document.getElementById("Mg").value,
+            document.getElementById("Al").value,
+            document.getElementById("Si").value,
+            document.getElementById("P").value,
+            document.getElementById("S").value,
+            document.getElementById("Cl").value,
+            document.getElementById("Br").value,],
+            HF:parseFloat(document.getElementById("HF").value),
+            QCISDT:parseFloat(document.getElementById("QCISDT").value),
+            MP2dz:parseFloat(document.getElementById("MP2dz").value),
+            MP2tz:parseFloat(document.getElementById("MP2tz").value),
+            ZPE:parseFloat(document.getElementById("ZPE").value),
+            Corr:parseFloat(document.getElementById("Corr").value),
+        }
+    const COUNT_A = utr.atoms
+    const Ahf = nj.array([-0.4993343, -7.4324257, -14.5723798, -24.5305738, -37.6877633, -54.3931834, -74.7966008, -99.3810918, -161.8530707, -199.6083389, -241.874158, -288.8509362, -340.7099574, -397.49874, -459.4727811, -2572.3707797])
+    const AQci = nj.array([-0.4993343, -7.4324257, -14.6169075, -24.5911252, -37.764881, -54.4870115, -74.925731, -99.5502035, -161.8530707, -199.6412673, -241.9227443, -288.9183398, -340.7966949, -397.6105804, -459.6122531, -2572.5002195])
+    const ADz = nj.array([-0.4993343, -7.4324257, -14.5981502, -24.5676436, -37.7414646, -54.4681736, -74.906967, -99.5356991, -161.8530707, -199.6299162, -241.9051571, -288.8974701, -340.7768833, -397.5886211, -459.5921497, -2572.4843204])
+    const ATz = nj.array([-0.4998212, -7.4327053, -14.6011854, -24.5765767, -37.7595607, -54.4986473, -74.9592941, -99.6121061, -161.858038, -199.6370122, -241.9152723, -288.913275, -340.800759, -397.6283261, -459.6473317, -2572.6466854])
+
+    const Alarge = nj.subtract(ATz,ADz)
+    const Mlarge = utr.MP2tz - utr.MP2dz
+    const DHO = nj.array([51.63, 37.69, 76.48, 136.2, 169.98, 112.53, 58.99, 18.47, 25.69, 34.87, 78.23, 106.6, 75.42, 65.66, 28.59, 28.2])
+    const DHT = nj.array([1.01, 1.1, 0.46, 0.29, 0.25, 1.04, 1.04, 1.05, 1.54, 1.19, 1.08, 0.76, 1.28, 1.05, 1.1, 0.0])
+    const SO = nj.array([0.0, 0.0, 0.0, -5e-05, -0.00014, 0.0, -0.00036, -0.00061, 0.0, 0.0, -0.00034, -0.00068, 0.0, -0.00089, -0.00134, -0.0056])
+    const Atotal = nj.array([-0.4998212, -7.4327053, -14.619942700000001, -24.6000583, -37.782977100000004, -54.517485199999996, -74.97805810000001, -99.6266105, -161.858038, -199.6483633, -241.9328595, -288.9341447, -340.82057060000005, -397.6502854, -459.6674351, -2572.6625845000003])
+    const Em = utr.HF + utr.QCISDT - utr.HF + utr.MP2tz - utr.MP2dz + utr.ZPE
+    const Ea = nj.dot(nj.array(COUNT_A), Atotal)
+
+    let proc = COUNT_A.concat([
+                            utr.QCISDT - utr.HF,
+                            utr.QCISDT - Em,
+                            utr.HF - Em,
+                            utr.MP2tz - utr.MP2dz,
+                            Ea.selection.data - utr.QCISDT,
+                            Ea.selection.data - utr.HF,
+                            Ea.selection.data-Em,
+                            utr.Corr - utr.ZPE,
+                            nj.dot(nj.array(COUNT_A),SO).selection.data[0],
+                            nj.dot(nj.array(COUNT_A),Alarge).selection.data[0] - Mlarge,
+                            nj.dot(nj.array(COUNT_A),AQci).selection.data[0] - utr.QCISDT,
+                            nj.dot(nj.array(COUNT_A),DHO).selection.data[0],
+                            nj.dot(nj.array(COUNT_A),DHT).selection.data[0],
+                        ])
+
+    console.log('proc',proc)
+
+    //let test = nj.array([0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 1, 0, 0, 0, 0, -0.9336541999999781, 0.38020419999986643, 1.3138583999998446, -0.3928951999999981, 0.4891216999999415, -0.44453250000003663, 0.8693258999998079, 0.005901000000000002, -0.00312, 0.07146230000000742, 0.8105545999999322, 180.48, 4.96])
+    let means = nj.array(
+        [3.975806451612903, 0.020161290322580645, 0.008064516129032258, 0.008064516129032258, 2.274193548387097,
+         0.1975806451612903, 0.43951612903225806, 0.38306451612903225, 0.020161290322580645, 0.004032258064516129,
+         0.020161290322580645, 0.056451612903225805, 0.05241935483870968, 0.125, 0.31048387096774194,
+         0.056451612903225805, -0.6646262568548382, 0.13244024314516492, 0.7970665000000033, -0.1916540536290361,
+         0.9599904903225531, 0.29536423346771523, 1.0924307334677186, 0.005530306451612897, -0.0015993548387096767,
+         0.056435147177415025, 1.095209396774183, 680.4325, 6.317540322580627
+         ])
+    let stds = nj.array([3.8394465950299934, 0.16679127322537463, 0.08943981053556, 0.08943981053555948, 2.1880861783369845,
+                     0.4807527212405861, 0.7595965130535285, 1.1009689115614274, 0.16679127322537474,
+                     0.06337190986089386, 0.16679127322537537, 0.2634271446945334, 0.32576552761185296,
+                     0.37634168586024197, 0.8778013726008058, 0.27831345043124794, 0.3497138231286686,
+                     0.1132359527324972, 0.43110045714460976, 0.11402466999030741, 0.7990698265268341,
+                     0.6398880136545518, 0.7901816082335713, 0.00182962224938435, 0.001959600330356845,
+                     0.03390292407843381, 0.8086434513671416, 510.21349050781606, 3.62329815423781]
+                    )
+    let test = proc
+    /*const normalized = [-1.0355154976655807, -0.12087736925743083, -0.09016696346674305, -0.09016696346674356, -1.0393528238981689, -0.4109818549782348, -0.5786178865743233, 3.2852294428017235, -0.12087736925743076, -0.06362847629757791, -0.12087736925743028, 3.5818191332973695, -0.16091130090709574, -0.3321449754211388, -0.3537062946801058, -0.2028346557299109, -0.7699063780517688, 2.1863185676428403, 1.1992572350094308, -1.7641195089520323, -0.5911113460578408, -1.158975238787011, -0.2842933073262328, 0.20716790451359895, 0.7451626888894158, 0.7507227633338239, -0.7759976040693015, 0.4432612837756867, -0.3520125704651099, -0.9798888294827264, -0.3746697800711895]*/
+    let normalized = nj.divide(nj.subtract(test,means),stds)
+
+    console.log('normalized', normalized)
+
+    const W1 = nj.array([[0.15279584, -0.49300611, -0.256201, -0.19260235, -0.80286676, 0.11898281, 0.38798603, -0.24671797],
+ [0.05107291, 0.26139247, -0.29743338, -0.69892091, -0.4979133, 0.14163479, 0.18213876, -0.09794535],
+ [-1.13174725, -0.49579713, -0.05479019, -0.0041899, -0.11947251, 0.42953011, 0.16081785, 0.6698038],
+ [-0.23394266, -0.41617253, -0.17044263, 0.31362015, -0.04318217, -0.67216635, -0.51111943, 0.45174831],
+ [0.39252526, -0.53488594, 0.69097239, -0.2458407, 0.30446494, 0.68172467, -0.14264289, 0.05229704],
+ [-0.61149782, -0.24314027, 0.64152557, 0.69410592, -0.88662022, 0.21420778, 0.3702032, -0.42527196],
+ [0.54782975, -0.45841339, -0.6864652, -0.03641113, 0.5125621, -0.78486562, 0.50175869, 0.28993711],
+ [-0.19231635, 0.51193422, -0.40665853, -0.30049878, -0.18885423, 0.06396595, 0.22723842, 0.26477793],
+ [-0.73149198, 0.19096626, -0.22009411, 0.20013055, -0.89829975, -0.60154045, 0.24520664, 0.36496225],
+ [0.06936359, 0.2172849, 0.0564525, -0.04989968, -0.71113878, -0.84102529, 0.15556304, 0.05649741],
+ [-0.22334957, 0.06816623, 0.02564686, -0.09618479, 0.15697746, -0.81707585, -0.15421286, 0.48999551],
+ [0.2812053, -0.0906023, -0.02030919, -0.68773854, 0.21346472, -0.35213536, -0.41203019, -0.20239191],
+ [-0.64076591, -0.24927416, -0.02902854, -0.2082835, 0.79092187, 0.45304403, 0.27484512, -0.70234656],
+ [0.28718832, 0.06715905, -0.69077492, 0.30011573, 0.34617719, -0.16180053, -0.8150025, 0.10899169],
+ [0.37255698, -0.03356663, -0.51635766, 0.00452637, -0.08957727, -0.6363641, 0.33964875, 0.41424891],
+ [-1.07141984, 0.37410334, 0.41652063, 0.45230243, 0.19333172, 0.22961046, 0.33175969, 0.02301018],
+ [-0.3117235, 0.23828202, 0.47364193, 0.47101447, 0.18953364, -0.07551364, -0.28571317, -0.25138023],
+ [-0.13897307, 0.01609158, -0.28702849, 0.13873024, 0.17541191, 0.10160437, -0.09301238, -0.03569725],
+ [0.09068225, -0.07130322, -0.45974851, -0.25916913, 0.23924848, 0.04021548, 0.47227228, -0.17888369],
+ [0.28817871, 0.04725849, 0.35147953, 0.16714841, 0.18922983, 0.36790776, -0.01332823, 0.11424513],
+ [0.45310065, -0.22272657, 0.37221798, 0.07246316, 0.18866926, -0.12462211, 0.15052891, -0.46412584],
+ [0.06783593, 0.14960088, 0.41286066, 0.28946945, -0.08598652, 0.4156605, 0.11612078, -0.60340011],
+ [0.68958682, -0.44938856, 0.45964342, -0.4281292, -0.27935681, -0.1443063, -0.22102104, -0.13592754],
+ [-0.30594692, -0.09901322, 0.02956095, -0.58971494, -0.28966704, -0.11275185, 0.02854693, 0.47508511],
+ [0.50669664, 0.14730932, 0.49429604, 0.45237982, -0.11219723, 0.35267526, -0.52274925, -0.10273039],
+ [-0.54980248, -0.48995963, 0.23849055, -0.19124123, 0.99357432, 0.55397433, -0.46348959, -0.49554828],
+ [0.16681547, -0.6571216, 0.06724156, -0.10945461, -0.06024517, 0.63732123, -0.17974372, -0.10785165],
+ [0.0463931, -0.1259068, 0.06100672, 0.30587947, 0.25799707, 0.57061636, 0.20616157, 0.14168137],
+ [0.58692491, -0.26435164, -0.07580793, 0.08332785, -0.28028762, 0.25619096, 0.54284, 0.19739181]])
+    const W2 = nj.array([[-0.47094628, 0.06341944, -1.06970298, -0.355544, 0.71800631, 0.47703326, 0.30097884, 0.40842867], [0.42151234, -0.59015387, 0.45232219, 0.28826818, 0.80009449, -0.11049102, -0.13628347, 0.01226466], [-0.62264037, 1.12400711, -0.15616788, 0.606152, -0.62852037, 0.06840793, -0.53006029, 0.64516121], [-0.25432545, 0.58935416, -0.01618273, -0.2205652, 0.50275666, 0.79728109, 0.4315877, 0.09786485], [0.18458554, 0.88178378, -0.93114924, -0.32751119, -0.06482195, -0.36161977, -0.36388984, 1.11801946], [-0.60675043, 0.2227504, -0.32721928, 0.31710216, 0.29092053, 0.50535607, -0.56708175, 0.81003249], [0.01151345, -0.26466098, 0.69962484, -0.26699916, 0.05931512, 0.2292653, 0.56255502, -0.53758991], [-0.59391481, -0.37994707, -0.04867595, 1.09199262, 0.19132467, -0.18026067, -0.466539, -0.97310281]])
+    const b2 = nj.array([0.019129831343889236, 0.03484582528471947, 0.030147641897201538, -0.0811561793088913, 0.4378417134284973, 0.39375823736190796, 0.28120163083076477, 0.396379679441452])
+    const W3 = nj.array([[0.25310424, -1.33569312, -1.00375938, 0.50361013], [-0.74450618, 1.12472415, -0.88995057, -0.29390097], [1.04193759, -0.20940216, -0.18388689, -0.9885022], [0.36281031, 0.68698442, 0.80767906, -1.48471534], [0.34108216, -0.66576076, 0.16649511, 0.5576039], [-0.48167717, -0.41210717, 0.32237419, 0.84127247], [-0.72787881, 0.07375436, 1.12142539, 0.25874546], [-1.07132018, 0.66080832, -0.99092692, 0.16621274]])
+    const b3 = nj.array([-0.2928304076194763, -0.27825599908828735, 0.13551919162273407, 0.31876903772354126])
+    const pred = softmax(nj.add(nj.dot(relu(nj.add(nj.dot(relu(nj.dot(normalized, W1)),W2),b2)),W3),b3))
+    console.log('pred', pred)
+    const params = [[0.9627024436558981, 0.970629077219819, 1.3913215125987235, 1.399096056273976],
+              [0.8596441561643315, 0.9809995004382951, 1.3625464659499176, 1.2372916425047151],
+              [1.0028021428538798, 1.0308436034783857, 1.0790705157613856, 1.0761610864622386],
+              [1.0007488440257408, 1.0413446918728706, 1.1809631227119575, 1.141013738667953]]
+    const ave = []
+    for(let i=0; i<4; i++){
+        let arr = 0
+        for(let k=0; k<4; k++){
+            arr += pred.tolist()[k]*params[k][i]
+        }
+        ave.push(arr)
+    }
+    console.log(pred.tolist())
+    console.log('ave',ave)
+    const [a,b,c,d] = ave
+    
+    const ea = parseFloat(nj.add(nj.dot(COUNT_A, nj.add(Ahf, nj.add(nj.multiply(nj.subtract(AQci,Ahf),a), nj.multiply(nj.subtract(ATz,ADz),c)))),nj.dot(COUNT_A,SO)).selection.data[0])
+    const em = nj.add(nj.add(utr.HF,nj.multiply(nj.subtract(utr.QCISDT,utr.HF),b)), nj.multiply(nj.subtract(utr.MP2tz,utr.MP2dz),d)).selection.data[0]
+    const dh0 = nj.dot(COUNT_A, DHO).selection.data[0]
+    const dht = nj.dot(COUNT_A, DHT).selection.data[0]
+    const enthalpy = dh0 - (ea - (em + utr.ZPE))*627.5095
+    const D298 = enthalpy + (utr.Corr - utr.ZPE)*627.5095 - dht
+    console.log(ea, em, dh0, dht, enthalpy, D298)
+    console.log({parameters:ave, mol_eng:em, atomization:(ea - (em + utr.ZPE))*627.5095, enthalpy0:enthalpy, enthalpy298:D298})
+    
+    const data = {parameters:ave, mol_eng:em, atomization:(ea - (em + utr.ZPE))*627.5095, enthalpy0:enthalpy, enthalpy298:D298}
+    document.getElementById("a").innerHTML = data.parameters[0]
+            document.getElementById("b").innerHTML = data.parameters[1]
+            document.getElementById("c").innerHTML = data.parameters[2]
+            document.getElementById("d").innerHTML = data.parameters[3]
+            document.getElementById("energy").innerHTML = data.mol_eng
+            document.getElementById("atomization").innerHTML = data.atomization
+            document.getElementById("enthalpy0").innerHTML = data.enthalpy0 + '   kcal/mol'
+            document.getElementById("enthalpy298").innerHTML = data.enthalpy298 + '   kcal/mol'
+            document.getElementById("box").style.visibility = "visible"
+
+    }
+        
+    </script>
+</html>
