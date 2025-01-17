@@ -17,6 +17,7 @@ body {
 }
 
 .container {
+    margin-top: 300px;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
@@ -121,7 +122,27 @@ td input:focus {
     background-color: #003b5c;
 }
 
+.button-60 {
+    background-color: #004d7a;
+    color: #fff;
+    font-size: 1.1rem;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 15%;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
 
+.button-60:hover {
+    background-color: #003b5c;
+}
+
+p{
+    float: inline-end;
+    color: #ff5722;
+}
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {

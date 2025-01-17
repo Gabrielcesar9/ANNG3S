@@ -30,6 +30,8 @@
                 </tr>
             </tbody>
         </table>
+        <button type="button" class="button-60" onclick="clearMolTable()">Clear molecule</button>
+        
         <table class="atoms">
             <thead>
                 <tr>
@@ -59,6 +61,8 @@
                 </tr>
             </tbody>
         </table>
+        <button type="button" class="button-60" onclick="clearAtomsTable()">Clear atoms</button>
+        <p> Please clear the example data before proceeding.</p>
         <br>
         <div id="eq">
             Eng = HF + a|b(QCISD(T) - HF) + c|d(MP2(aug-cc-pvTz) - MP2(aug-cc-pvDz))
@@ -113,6 +117,18 @@
 </body>
 
 <script>
+
+function clearMolTable() {
+            const molInputs = document.querySelectorAll(".mol input");
+            molInputs.forEach(input => input.value = "");
+        }
+
+        // Function to clear inputs in the atoms table
+        function clearAtomsTable() {
+            const atomInputs = document.querySelectorAll(".atoms input");
+            atomInputs.forEach(input => input.value = "");
+        }
+        
     function compute(){
 
         function relu(array){
